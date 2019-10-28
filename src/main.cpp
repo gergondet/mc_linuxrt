@@ -32,7 +32,7 @@ int main(int argc, char * argv[])
 
   /* 1ms/1ms reservation */
   attr.sched_policy = SCHED_DEADLINE;
-  attr.sched_runtime = attr.sched_deadline = attr.sched_period = 1000000; // nanoseconds
+  attr.sched_runtime = attr.sched_deadline = attr.sched_period = 5000000; // nanoseconds
 
   /* Initialize callback (non real-time yet) */
   void * data = init(argc, argv);

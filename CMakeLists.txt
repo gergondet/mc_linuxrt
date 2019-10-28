@@ -18,8 +18,6 @@ function(add NAME SRC)
   install(TARGETS ${NAME} RUNTIME DESTINATION bin)
 endfunction()
 
-#add_executable(MCLinuxRTServer src/server.cpp $<TARGET_OBJECTS:MCLinuxRTMainLoop>)
-#target_link_libraries(MCLinuxRTServer PUBLIC mc_udp::server Threads::Threads)
-
 add(MCLinuxRT src/native.cpp mc_rtc::mc_control)
 add(MCLinuxRTMeasureLatency src/latency.cpp)
+add(MCLinuxRTServer src/server.cpp mc_udp::server)
