@@ -12,13 +12,14 @@ find_package(mc_udp REQUIRED)
 
 add_library(MCLinuxRTMainLoop OBJECT src/main.cpp src/thread.h src/timer.cpp src/timer.h)
 
-add_executable(MCLinuxRTServer src/server.cpp $<TARGET_OBJECTS:MCLinuxRTMainLoop>)
-target_link_libraries(MCLinuxRTServer PUBLIC mc_udp::server Threads::Threads)
+function(add NAME SRC)
+  add_executable(${NAME} ${SRC} $<TARGET_OBJECTS:MCLinuxRTMainLoop>)
+  target_link_libraries(${NAME} PUBLIC Threads::Threads ${ARGN})
+  install(TARGETS ${NAME} RUNTIME DESTINATION bin)
+endfunction()
 
-add_executable(MCLinuxRT src/native.cpp $<TARGET_OBJECTS:MCLinuxRTMainLoop>)
-target_link_libraries(MCLinuxRT PUBLIC mc_rtc::mc_control Threads::Threads)
+#add_executable(MCLinuxRTServer src/server.cpp $<TARGET_OBJECTS:MCLinuxRTMainLoop>)
+#target_link_libraries(MCLinuxRTServer PUBLIC mc_udp::server Threads::Threads)
 
-add_executable(MCLinuxRTMeasureLatency src/latency.cpp $<TARGET_OBJECTS:MCLinuxRTMainLoop>)
-target_link_libraries(MCLinuxRTMeasureLatency PUBLIC Threads::Threads)
-
-install(TARGETS MCLinuxRTServer MCLinuxRT RUNTIME DESTINATION bin)
+add(MCLinuxRT src/native.cpp mc_rtc::mc_control)
+add(MCLinuxRTMeasureLatency src/latency.cpp)

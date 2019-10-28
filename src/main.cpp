@@ -1,91 +1,51 @@
-#include <limits.h>
-#include <pthread.h>
-#include <sched.h>
+#include <linux/sched.h>
+#include <linux/sched/types.h>
+#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <syscall.h>
 #include <sys/mman.h>
-
-#include <iostream>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "thread.h"
 
-void * thread_fun(void * data)
+int sched_setattr(pid_t pid, const struct sched_attr *attr, unsigned int flags)
 {
-  auto & fn = *(static_cast<std::function<void()>*>(data));
-  fn();
-  return nullptr;
+  return syscall(__NR_sched_setattr, pid, attr, flags);
 }
 
 int main(int argc, char * argv[])
 {
-  struct sched_param param;
-  pthread_attr_t attr;
-  pthread_t thread;
-  int ret;
+  struct sched_attr attr;
 
   /* Lock memory */
   if(mlockall(MCL_CURRENT|MCL_FUTURE) == -1)
   {
-    std::cerr << "mlockall failed: " << strerror(errno) << "\n";
-    exit(-2);
+    printf("mlockall failed: %m\n");
+    return -2;
   }
 
-  /* Initialize pthread attributes (default values) */
-  ret = pthread_attr_init(&attr);
-  if (ret)
+  /* Configure deadline policy */
+  memset(&attr, 0, sizeof(attr));
+  attr.size = sizeof(attr);
+
+  /* 1ms/1ms reservation */
+  attr.sched_policy = SCHED_DEADLINE;
+  attr.sched_runtime = attr.sched_deadline = attr.sched_period = 1000000; // nanoseconds
+
+  /* Initialize callback (non real-time yet) */
+  void * data = init(argc, argv);
+
+  /* Set scheduler policy */
+  if(sched_setattr(0, &attr, 0) < 0)
   {
-    std::cerr << "init pthread attributes failed\n";
-    return ret;
+    printf("sched_setattr failed: %m\n");
+    return -2;
   }
 
-  /* Set a specific stack size  */
-  ret = pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
-  if (ret)
-  {
-    std::cerr << "pthread setstacksize failed\n";
-    return ret;
-  }
-
-  /* Set scheduler policy and priority of pthread */
-  ret = pthread_attr_setschedpolicy(&attr, SCHED_RR);
-  if (ret)
-  {
-    std::cerr << "pthread setschedpolicy failed\n";
-    return ret;
-  }
-  param.sched_priority = sched_get_priority_max(SCHED_RR);
-  ret = pthread_attr_setschedparam(&attr, &param);
-  if (ret)
-  {
-    std::cerr << "pthread setschedparam failed\n";
-    return ret;
-  }
-  /* Use scheduling parameters of attr */
-  ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-  if (ret)
-  {
-    std::cerr << "pthread setinheritsched failed\n";
-    return ret;
-  }
-
-  std::function<void()> fn = rt_function(argc, argv);
-
-  /* Create a pthread with specified attributes */
-  ret = pthread_create(&thread, &attr, thread_fun, std::addressof(fn));
-  if (ret)
-  {
-    std::cerr << "create pthread failed\n";
-    return ret;
-  }
-
-  /* Join the thread and wait until it is done */
-  ret = pthread_join(thread, NULL);
-  if (ret)
-  {
-    std::cerr << "join pthread failed: %m\n";
-    return ret;
-  }
+  /* Run */
+  run(data);
 
   return 0;
 }
