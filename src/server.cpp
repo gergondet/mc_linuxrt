@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-void * init(int argc, char * argv[])
+void * init(int argc, char * argv[], uint64_t)
 {
   mc_udp::Server * server = new mc_udp::Server(argc > 1 ? std::atoi(argv[1]) : 4444);
   return server;

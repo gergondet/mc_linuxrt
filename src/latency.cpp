@@ -12,8 +12,8 @@ using time_point = std::chrono::time_point<clock>;
 
 struct LatencyMeasure
 {
-  LatencyMeasure(unsigned int usec)
-  : usec_(usec), nMeasures_(1000000 / usec)
+  LatencyMeasure(uint64_t usec)
+  : usec_(usec), nMeasures_(1000000 / usec_)
   {
   }
 
@@ -25,7 +25,7 @@ struct LatencyMeasure
       auto delay = std::chrono::duration_cast<std::chrono::microseconds>(now - prev_);
       avg_ += delay.count();
       max_ = std::max<double>(delay.count(), max_);
-      if(delay.count() > usec_)
+      if(delay.count() > 1.1 * usec_)
       {
         missed_ += 1;
       }
@@ -54,9 +54,9 @@ struct LatencyMeasure
 
 } // namespace app
 
-void * init(int argc, char * argv[])
+void * init(int, char * [], uint64_t cycle_ns)
 {
-  return new app::LatencyMeasure(argc > 1 ? std::atoi(argv[1]) : 1000);
+  return new app::LatencyMeasure(cycle_ns / 1000);
 }
 
 void run(void * data)

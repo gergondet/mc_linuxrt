@@ -2,6 +2,7 @@
 #include <linux/sched/types.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <syscall.h>
 #include <sys/mman.h>
@@ -30,12 +31,20 @@ int main(int argc, char * argv[])
   memset(&attr, 0, sizeof(attr));
   attr.size = sizeof(attr);
 
-  /* 1ms/1ms reservation */
+  uint64_t cycle_ns = 1 * 1000 * 1000; // 1 ms default cycle
+  char * MC_RT_FREQ = nullptr;
+  if((MC_RT_FREQ = getenv("MC_RT_FREQ")) != nullptr)
+  {
+    cycle_ns = atoi(MC_RT_FREQ) * 1000 * 1000;
+  }
+  printf("Running real-time thread at %fms per cycle\n", cycle_ns / 1e6);
+
+  /* Time reservation */
   attr.sched_policy = SCHED_DEADLINE;
-  attr.sched_runtime = attr.sched_deadline = attr.sched_period = 5000000; // nanoseconds
+  attr.sched_runtime = attr.sched_deadline = attr.sched_period = cycle_ns; // nanoseconds
 
   /* Initialize callback (non real-time yet) */
-  void * data = init(argc, argv);
+  void * data = init(argc, argv, cycle_ns);
 
   /* Set scheduler policy */
   if(sched_setattr(0, &attr, 0) < 0)

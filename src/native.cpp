@@ -2,7 +2,7 @@
 
 #include <mc_control/mc_global_controller.h>
 
-void * init(int argc, char * argv[])
+void * init(int argc, char * argv[], uint64_t)
 {
   auto gc = new mc_control::MCGlobalController(argc > 1 ? argv[1] : mc_rtc::CONF_PATH);
   gc->init({0});
