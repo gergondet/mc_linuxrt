@@ -3,13 +3,21 @@
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/mman.h>
 
 #include <iostream>
 
 #include "thread.h"
 
-int main(int argc, char * argv[])
+void * thread_fun(void * data)
+{
+  auto & fn = *(static_cast<std::function<void()>*>(data));
+  fn();
+  return nullptr;
+}
+
+int main(int, char *[])
 {
   struct sched_param param;
   pthread_attr_t attr;
@@ -61,10 +69,10 @@ int main(int argc, char * argv[])
     return ret;
   }
 
-  auto thread_func = rt_function();
+  std::function<void()> fn = rt_function();
 
   /* Create a pthread with specified attributes */
-  ret = pthread_create(&thread, &attr, thread_func, NULL);
+  ret = pthread_create(&thread, &attr, thread_fun, std::addressof(fn));
   if (ret)
   {
     std::cerr << "create pthread failed\n";
