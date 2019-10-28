@@ -2,7 +2,7 @@
 
 #include <mc_udp/server/Server.h>
 
-std::function<void()> rt_function()
+std::function<void()> rt_function(int, char * [])
 {
   return [](){};
 }

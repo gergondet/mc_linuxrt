@@ -17,7 +17,7 @@ void * thread_fun(void * data)
   return nullptr;
 }
 
-int main(int, char *[])
+int main(int argc, char * argv[])
 {
   struct sched_param param;
   pthread_attr_t attr;
@@ -48,13 +48,13 @@ int main(int, char *[])
   }
 
   /* Set scheduler policy and priority of pthread */
-  ret = pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
+  ret = pthread_attr_setschedpolicy(&attr, SCHED_RR);
   if (ret)
   {
     std::cerr << "pthread setschedpolicy failed\n";
     return ret;
   }
-  param.sched_priority = 80;
+  param.sched_priority = sched_get_priority_max(SCHED_RR);
   ret = pthread_attr_setschedparam(&attr, &param);
   if (ret)
   {
@@ -69,7 +69,7 @@ int main(int, char *[])
     return ret;
   }
 
-  std::function<void()> fn = rt_function();
+  std::function<void()> fn = rt_function(argc, argv);
 
   /* Create a pthread with specified attributes */
   ret = pthread_create(&thread, &attr, thread_fun, std::addressof(fn));
