@@ -54,7 +54,7 @@ struct LatencyMeasure
 
 } // namespace app
 
-void * init(int, char * [], uint64_t cycle_ns)
+void * init(int, char * [], uint64_t & cycle_ns)
 {
   return new app::LatencyMeasure(cycle_ns / 1000);
 }

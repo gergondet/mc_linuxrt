@@ -37,14 +37,15 @@ int main(int argc, char * argv[])
   {
     cycle_ns = atoi(MC_RT_FREQ) * 1000 * 1000;
   }
-  printf("Running real-time thread at %fms per cycle\n", cycle_ns / 1e6);
+
+  /* Initialize callback (non real-time yet) */
+  void * data = init(argc, argv, cycle_ns);
 
   /* Time reservation */
   attr.sched_policy = SCHED_DEADLINE;
   attr.sched_runtime = attr.sched_deadline = attr.sched_period = cycle_ns; // nanoseconds
 
-  /* Initialize callback (non real-time yet) */
-  void * data = init(argc, argv, cycle_ns);
+  printf("Running real-time thread at %fms per cycle\n", cycle_ns / 1e6);
 
   /* Set scheduler policy */
   if(sched_setattr(0, &attr, 0) < 0)
