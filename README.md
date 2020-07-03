@@ -1,14 +1,14 @@
 MC Linux RT
 ==
 
-This package contains various executables to work with mc\_rtc in a Linux RT environment
+This package contains various executables to work with mc\_rtc with a Linux PREEMPT RT kernel
 
 Available executable
 --
 
 - `MCLinuxRTMeasureLatency`: measure RT latency for an empty loop
 - `MCLinuxRT`: runs mc\_rtc inside the RT loop
-- `MCLinuxRTServer`: runs an UDP server inside the RT loop, connection can be established using `MCUDPControl` from the [mc\_udp package](https://gite.lirmm.fr/multi-contact/mc_udp)
+- `MCLinuxRTServer`: runs an UDP server inside the RT loop, connection can be established using `MCUDPControl` from the [mc\_udp package](https://github.com/jrl-umi3218/mc_udp)
 
 Environment variables
 --
@@ -33,7 +33,7 @@ sudo MC_RTC_FREQ=5 MCLinuxRTMeasureLatency
 Run mc\_rtc in Linux RT with a 5ms loop (frequency is deduced from mc\_rtc configuration):
 
 ```bash
-sudo MCLinuxRT /home/bit/.config/mc_rtc/mc_rtc.conf
+sudo MCLinuxRT $HOME/.config/mc_rtc/mc_rtc.conf
 ```
 
 Run the UDP server on port 4444 (default):

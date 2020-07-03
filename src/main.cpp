@@ -1,3 +1,7 @@
+/*
+ * Copyright 2019-2020 mc_rtc development team
+ */
+
 #include <linux/sched.h>
 #include <linux/sched/types.h>
 #include <stdint.h>

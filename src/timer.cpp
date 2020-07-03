@@ -1,3 +1,7 @@
+/*
+ * Copyright 2019-2020 mc_rtc development team
+ */
+
 #include "timer.h"
 
 #include <cassert>
