@@ -36,8 +36,8 @@ int main(int argc, char * argv[])
   attr.size = sizeof(attr);
 
   uint64_t cycle_ns = 1 * 1000 * 1000; // 1 ms default cycle
-  char * MC_RT_FREQ = nullptr;
-  if((MC_RT_FREQ = getenv("MC_RT_FREQ")) != nullptr)
+  char * MC_RT_FREQ = getenv("MC_RTC_FREQ");
+  if(MC_RT_FREQ != nullptr)
   {
     cycle_ns = atoi(MC_RT_FREQ) * 1000 * 1000;
   }
