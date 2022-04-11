@@ -28,7 +28,7 @@ function(add NAME SRC)
 endfunction()
 
 add(MCLinuxRT src/native.cpp mc_rtc::mc_control)
-add(MCLinuxRTMeasureLatency src/latency.cpp)
+add(MCLinuxRTMeasureLatency src/latency.cpp mc_rtc::mc_control)
 
 if(BUILD_RT_SERVER)
   add(MCLinuxRTServer src/server.cpp mc_udp::server)
